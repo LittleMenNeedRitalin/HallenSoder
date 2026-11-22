@@ -1,8 +1,8 @@
-# Admin-konfiguration (Sveltia CMS). Byt ut repo nedan mot ert GitHub-repo.
+# Admin-konfiguration (Sveltia CMS).
 backend:
   name: github
-  repo: DIN-ANVANDARE/DITT-REPO   # <-- t.ex. hallen-sodermalm/hallen-web
-  branch: main
+  repo: LittleMenNeedRitalin/HallenSoder
+  branch: master
 
 locale: sv
 media_folder: img/uploads

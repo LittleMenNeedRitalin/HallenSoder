@@ -16,7 +16,7 @@ Allt ligger i `HallenSoder/HallenSoder.Client`.
     dotnet run --project HallenSoder/HallenSoder.Client
 
 ## Publicera på GitHub Pages
-1. Pusha till ett GitHub-repo (branch `main`).
+1. Pusha till ett GitHub-repo (branch `master`).
 2. Settings → Pages → Source: **GitHub Actions**.
 3. Workflowen `.github/workflows/deploy.yml` bygger och publicerar vid varje push.
 4. Sajten hamnar på `https://<användare>.github.io/<repo>/`.

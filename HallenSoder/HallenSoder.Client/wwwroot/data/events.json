@@ -1,34 +1,3 @@
 {
-  "events": [
-    {
-      "type": "Quiz",
-      "title": "Torsdagsquiz (exempel)",
-      "date": "2026-11-26T19:00",
-      "league": "",
-      "description": "Samla laget och tävla om ära och priser. Ta bort eller ändra i admin.",
-      "image": "img/interior-lounge.webp",
-      "bookable": true,
-      "featured": true
-    },
-    {
-      "type": "Match",
-      "title": "Exempelmatch: Lag A – Lag B",
-      "date": "2026-11-28T18:30",
-      "league": "Premier League",
-      "description": "Live på alla skärmar. Ersätt med riktiga matcher i admin.",
-      "image": "img/bar-counter.webp",
-      "bookable": true,
-      "featured": false
-    },
-    {
-      "type": "Afterwork",
-      "title": "Afterwork fredag (exempel)",
-      "date": "2026-11-27T16:00",
-      "league": "",
-      "description": "Mat, dryck och sport efter jobbet.",
-      "image": "img/drink.webp",
-      "bookable": true,
-      "featured": false
-    }
-  ]
+  "events": []
 }

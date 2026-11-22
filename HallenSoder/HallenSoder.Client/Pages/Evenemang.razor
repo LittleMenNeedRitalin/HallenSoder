@@ -20,12 +20,15 @@
         }
         else
         {
-            <div class="filters">
-                @foreach (var t in Types)
-                {
-                    <button class="tab @(t == filter ? "active" : "")" @onclick="() => filter = t">@t</button>
-                }
-            </div>
+            @if (all.Count > 0)
+            {
+                <div class="filters">
+                    @foreach (var t in Types)
+                    {
+                        <button class="tab @(t == filter ? "active" : "")" @onclick="() => filter = t">@t</button>
+                    }
+                </div>
+            }
             <div class="events">
                 @foreach (var e in Visible)
                 {

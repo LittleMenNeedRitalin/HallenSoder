@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boka bord – Hallen Södermalm</title>
+<meta name="description" content="Boka bord på Hallen Södermalm, Götgatan 85A. Bokning gäller för ätande gäster.">
+<meta property="og:title" content="Boka bord – Hallen Södermalm">
+<meta property="og:description" content="Boka bord på Hallen Södermalm, Götgatan 85A. Bokning gäller för ätande gäster.">
+<meta property="og:image" content="img/interior-bar.webp">
+<meta name="theme-color" content="#07191c">
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header solid">
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="Hallen Södermalm – startsida"><img src="img/logo.png" alt="Hallen"></a>
+    <button class="burger" aria-label="Meny" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Start</a></li>
+      <li><a href="meny.html">Meny</a></li>
+      <li><a href="kontakt.html">Hitta hit</a></li>
+      <li><a class="btn btn-primary" href="boka-bord.html">Boka bord</a></li>
+    </ul>
+  </div>
+</header>
+<main>
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Möt upp</span>
+    <h2>Boka bord</h2>
+    <p class="lead" style="margin-top:1rem">Säkra ditt bord inför matchen, lunchen eller afterworken.</p>
+  </div>
+</section>
+<section style="padding-top:3rem">
+  <div class="wrap booking-grid">
+    <div class="reveal">
+      <div class="alert"><strong>Observera:</strong> bokning av bord gäller enbart för ätande gäster.</div>
+      <div class="iframe-box"><iframe src="https://widget.thefork.com/sv/550750af-69ba-4857-9dee-b3fa04c2f0ba" title="Boka bord via TheFork" loading="lazy"></iframe></div>
+    </div>
+    <aside class="panel reveal">
+      <h3>Hellre ringa?</h3>
+      <ul class="list" style="margin-top:1.2rem">
+        <li><small>Telefon</small><a href="tel:08828265">08-828 265</a></li>
+        <li><small>E-post</small><a href="mailto:info@hallen.one">info@hallen.one</a></li>
+        <li><small>Adress</small>Götgatan 85A, 116 62 Stockholm</li>
+      </ul>
+      <p style="margin-top:1.5rem;color:var(--muted)">Större sällskap eller afterwork? Hör av dig så fixar vi det.</p>
+    </aside>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img src="img/logo.png" alt="Hallen Södermalm">
+        <p>Din moderna sportsbar på Södermalm – live-sport, god mat och fräscha drycker.</p>
+      </div>
+      <div>
+        <h4>Sidor</h4>
+        <a href="index.html">Start</a>
+        <a href="meny.html">Meny</a>
+        <a href="boka-bord.html">Boka bord</a>
+        <a href="kontakt.html">Hitta hit</a>
+      </div>
+      <div>
+        <h4>Kontakt</h4>
+        <p>Götgatan 85A<br>116 62 Stockholm</p>
+        <a href="tel:08828265">08-828 265</a>
+        <a href="mailto:info@hallen.one">info@hallen.one</a>
+      </div>
+    </div>
+    <div class="copy"><span>© <span id="yr">2026</span> Hallen Södermalm</span><span>Prototyp – redesign av hallen.one</span></div>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script>document.getElementById("yr").textContent = new Date().getFullYear();</script>
+</body>
+</html>

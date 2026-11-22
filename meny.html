@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meny – Hallen Södermalm</title>
+<meta name="description" content="Hela menyn på Hallen Södermalm: lunch, smårätter, varmrätter, efterrätter och dessertdrinkar.">
+<meta property="og:title" content="Meny – Hallen Södermalm">
+<meta property="og:description" content="Hela menyn på Hallen Södermalm: lunch, smårätter, varmrätter, efterrätter och dessertdrinkar.">
+<meta property="og:image" content="img/interior-bar.webp">
+<meta name="theme-color" content="#07191c">
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header solid">
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="Hallen Södermalm – startsida"><img src="img/logo.png" alt="Hallen"></a>
+    <button class="burger" aria-label="Meny" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Start</a></li>
+      <li><a href="meny.html" aria-current="page">Meny</a></li>
+      <li><a href="kontakt.html">Hitta hit</a></li>
+      <li><a class="btn btn-primary" href="boka-bord.html">Boka bord</a></li>
+    </ul>
+  </div>
+</header>
+<main>
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Upptäck</span>
+    <h2>Vår meny</h2>
+    <p class="lead" style="margin-top:1rem">Husmanskost, burgare och barmat med hög nivå. Lunch serveras för 119 kr inklusive kaffe.</p>
+  </div>
+</section>
+<div class="menu-tabs"><div class="wrap"><div class="tabs-inner" id="menu-tabs"></div></div></div>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div id="menu-root"><noscript><p class="lead">Aktivera JavaScript för att se menyn, eller besök <a href="https://hallen.one/meny/">hallen.one/meny</a>.</p></noscript></div>
+    <div class="menu-banner"><img src="img/food.webp" alt="Meaty fries och burgare" loading="lazy"></div>
+    <p class="menu-foot">Har du allergier eller specialkost? Säg till din servitör. Priser i SEK. Vill du ha dryckesmenyn? Fråga i baren eller ring 08-828 265.</p>
+    <p style="margin-top:2rem"><a class="btn btn-primary" href="boka-bord.html">Boka bord</a></p>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img src="img/logo.png" alt="Hallen Södermalm">
+        <p>Din moderna sportsbar på Södermalm – live-sport, god mat och fräscha drycker.</p>
+      </div>
+      <div>
+        <h4>Sidor</h4>
+        <a href="index.html">Start</a>
+        <a href="meny.html">Meny</a>
+        <a href="boka-bord.html">Boka bord</a>
+        <a href="kontakt.html">Hitta hit</a>
+      </div>
+      <div>
+        <h4>Kontakt</h4>
+        <p>Götgatan 85A<br>116 62 Stockholm</p>
+        <a href="tel:08828265">08-828 265</a>
+        <a href="mailto:info@hallen.one">info@hallen.one</a>
+      </div>
+    </div>
+    <div class="copy"><span>© <span id="yr">2026</span> Hallen Södermalm</span><span>Prototyp – redesign av hallen.one</span></div>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script>document.getElementById("yr").textContent = new Date().getFullYear();</script>
+</body>
+</html>

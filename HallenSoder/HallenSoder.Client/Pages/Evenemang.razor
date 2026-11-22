@@ -1,0 +1,52 @@
+@page "/evenemang"
+@inherits SitePage
+@inject EventService Events
+
+<PageTitle>Event &amp; sändningsschema – Hallen Södermalm</PageTitle>
+
+<section class="page-hero">
+    <div class="wrap">
+        <span class="eyebrow">På gång</span>
+        <h2>Event &amp; sändningsschema</h2>
+        <p class="lead" style="margin-top:1rem">Matcher på storbild, quizkvällar och andra event. Boka bord så du får din plats.</p>
+    </div>
+</section>
+
+<section style="padding-top:3rem">
+    <div class="wrap">
+        @if (all is null)
+        {
+            <p class="lead">Laddar schemat…</p>
+        }
+        else
+        {
+            <div class="filters">
+                @foreach (var t in Types)
+                {
+                    <button class="tab @(t == filter ? "active" : "")" @onclick="() => filter = t">@t</button>
+                }
+            </div>
+            <div class="events">
+                @foreach (var e in Visible)
+                {
+                    <EventCard Event="e" />
+                }
+                @if (!Visible.Any())
+                {
+                    <p class="lead">Inga kommande event just nu – titta in igen snart!</p>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private const string AllLabel = "Alla";
+    private List<SiteEvent>? all;
+    private string filter = AllLabel;
+
+    private IEnumerable<string> Types => new[] { AllLabel }.Concat(all!.Select(e => e.Type).Distinct());
+    private IEnumerable<SiteEvent> Visible => filter == AllLabel ? all! : all!.Where(e => e.Type == filter);
+
+    protected override async Task OnInitializedAsync() => all = await Events.GetUpcomingAsync();
+}

@@ -1,0 +1,26 @@
+<article class="event reveal">
+    <div class="event-date">
+        <span>@Event.Date.ToString("MMM")</span>
+        <strong>@Event.Date.Day</strong>
+        <small>@Event.Date.ToString("ddd")</small>
+    </div>
+    <div class="event-main">
+        <span class="event-type">@Event.Icon @Event.Type@(string.IsNullOrWhiteSpace(Event.League) ? "" : " · " + Event.League)</span>
+        <h3>@Event.Title</h3>
+        @if (!string.IsNullOrWhiteSpace(Event.Description))
+        {
+            <p>@Event.Description</p>
+        }
+    </div>
+    <div class="event-side">
+        <span class="event-time">@Event.Date.ToString("HH:mm")</span>
+        @if (Event.Bookable)
+        {
+            <a class="btn btn-ghost" href="boka-bord">Boka bord</a>
+        }
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public SiteEvent Event { get; set; } = default!;
+}

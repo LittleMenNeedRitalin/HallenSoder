@@ -1,0 +1,74 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Nav
+
+<header class="site-header @(IsHome ? "" : "solid")">
+    <div class="wrap nav">
+        <a class="logo" href="" aria-label="Hallen Södermalm – startsida"><img src="img/logo.png" alt="Hallen"></a>
+        <button class="burger" aria-label="Meny" aria-expanded="@menuOpen.ToString().ToLower()" @onclick="() => menuOpen = !menuOpen"><span></span><span></span><span></span></button>
+        <ul class="nav-links @(menuOpen ? "open" : "")" @onclick="() => menuOpen = false">
+            <li><NavLink href="" Match="NavLinkMatch.All">Start</NavLink></li>
+            <li><NavLink href="meny">Meny</NavLink></li>
+            <li><NavLink href="evenemang">Event</NavLink></li>
+            <li><NavLink href="kontakt">Hitta hit</NavLink></li>
+            <li><a class="btn btn-primary" href="boka-bord">Boka bord</a></li>
+        </ul>
+    </div>
+</header>
+
+<main>
+    @Body
+</main>
+
+<footer class="site-footer">
+    <div class="wrap">
+        <div class="foot-grid">
+            <div>
+                <img src="img/logo.png" alt="Hallen Södermalm">
+                <p>Din moderna sportsbar på Södermalm – live-sport, god mat och fräscha drycker.</p>
+            </div>
+            <div>
+                <h4>Sidor</h4>
+                <a href="">Start</a>
+                <a href="meny">Meny</a>
+                <a href="evenemang">Event &amp; sändningsschema</a>
+                <a href="boka-bord">Boka bord</a>
+                <a href="kontakt">Hitta hit</a>
+            </div>
+            <div>
+                <h4>Öppettider</h4>
+                <OpeningHours />
+            </div>
+            <div>
+                <h4>Kontakt</h4>
+                <p>Götgatan 85A<br>116 62 Stockholm</p>
+                <a href="tel:08828265">08-828 265</a>
+                <a href="mailto:info@hallen.one">info@hallen.one</a>
+            </div>
+        </div>
+        <div class="copy"><span>© @DateTime.Now.Year Hallen Södermalm</span><span>Prototyp – redesign av hallen.one</span></div>
+    </div>
+</footer>
+
+@code {
+    private bool menuOpen;
+
+    private bool IsHome
+    {
+        get
+        {
+            var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/');
+            return path.Length == 0;
+        }
+    }
+
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        menuOpen = false;
+        StateHasChanged();
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

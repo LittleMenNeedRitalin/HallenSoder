@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hallen Södermalm – Sportsbar på Götgatan</title>
+    <base href="/" />
+    <meta name="description" content="Hallen Södermalm: modern sportsbar med live-sport på storbildsskärm, god mat och fräscha drycker. Boka bord idag." />
+    <meta name="theme-color" content="#07191c" />
+    <link rel="icon" href="img/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+        // GitHub Pages SPA-stöd: återställer URL:en som 404.html skickat vidare.
+        (function (l) {
+            if (l.search[1] === '/') {
+                var d = l.search.slice(1).split('&').map(function (s) { return s.replace(/~and~/g, '&'); }).join('?');
+                window.history.replaceState(null, null, l.pathname.slice(0, -1) + d + l.hash);
+            }
+        }(window.location));
+    </script>
+</head>
+<body>
+    <div id="app"><div class="loading"><span></span></div></div>
+    <div id="blazor-error-ui">Ett fel uppstod. <a href="" class="reload">Ladda om</a><span class="dismiss">🗙</span></div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="js/site.js"></script>
+</body>
+</html>

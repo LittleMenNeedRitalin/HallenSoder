@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* Hallen Södermalm – prototyp */
 :root {
   --bg: #07191c;
@@ -71,7 +72,7 @@ h3 { font-size: 1.5rem; }
   transition: background .3s, backdrop-filter .3s, border-color .3s;
   border-bottom: 1px solid transparent;
 }
-.site-header.scrolled, .site-header.solid {
+body.scrolled .site-header, .site-header.solid {
   background: rgba(7, 25, 28, .85);
   backdrop-filter: blur(14px);
   border-color: var(--line);
@@ -87,8 +88,8 @@ h3 { font-size: 1.5rem; }
   content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 0;
   background: var(--copper); transition: width .25s;
 }
-.nav-links a:not(.btn):hover, .nav-links a[aria-current="page"] { color: var(--text); }
-.nav-links a:not(.btn):hover::after, .nav-links a[aria-current="page"]::after { width: 100%; }
+.nav-links a:not(.btn):hover, .nav-links a.active { color: var(--text); }
+.nav-links a:not(.btn):hover::after, .nav-links a.active::after { width: 100%; }
 .nav-links .btn { padding: .65rem 1.3rem; }
 .burger { display: none; background: none; border: 0; color: var(--text); width: 44px; height: 44px; cursor: pointer; }
 .burger span { display: block; width: 26px; height: 2px; background: currentColor; margin: 6px auto; transition: .3s; }
@@ -158,7 +159,7 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
 .card-body { padding: 1.8rem; }
 .card-body p { color: #cdd8d4; font-size: .97rem; margin: .5rem 0 1rem; }
 .card-link { color: var(--copper-2); font-weight: 700; font-size: .9rem; }
-.card-link::after { content: " →"; }
+.card-link::after { content: " \2192"; }
 
 /* Afterwork band */
 .band { position: relative; text-align: center; isolation: isolate; overflow: hidden; }
@@ -253,3 +254,54 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
   .gallery .wide { grid-column: span 2; }
   .card { min-height: 360px; }
 }
+
+/* Event */
+.events { display: grid; gap: 1rem; }
+.event {
+  display: grid; grid-template-columns: 84px 1fr auto; gap: 1.5rem; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1.2rem 1.5rem; transition: border-color .25s, transform .25s;
+}
+.event:hover { border-color: var(--copper); transform: translateX(4px); }
+.event-date { text-align: center; background: var(--bg); border-radius: 14px; padding: .6rem .3rem; border: 1px solid var(--line); }
+.event-date span, .event-date small { display: block; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; color: var(--copper-2); font-weight: 700; }
+.event-date strong { display: block; font-family: var(--font-head); font-size: 2.2rem; line-height: 1; }
+.event-type { color: var(--copper-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+.event h3 { margin: .2rem 0; }
+.event p { color: var(--muted); font-size: .95rem; }
+.event-side { display: grid; gap: .6rem; justify-items: end; }
+.event-time { font-family: var(--font-head); font-size: 1.8rem; font-weight: 700; }
+.event-side .btn { padding: .5rem 1.1rem; font-size: .85rem; }
+.filters { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.section-head.row { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1rem; }
+@media (max-width: 700px) {
+  .event { grid-template-columns: 70px 1fr; }
+  .event-side { grid-column: 1 / -1; grid-template-columns: auto auto; justify-content: space-between; justify-items: start; align-items: center; }
+}
+
+/* Blazor */
+.loading { min-height: 100vh; display: grid; place-items: center; background: var(--bg); }
+.loading span { width: 46px; height: 46px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--copper); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#blazor-error-ui { background: #fff3cd; color: #333; bottom: 0; display: none; left: 0; padding: .6rem 1.25rem; position: fixed; width: 100%; z-index: 1000; }
+#blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: .75rem; top: .5rem; }
+
+/* Ingen fokusram på rubriker som får fokus vid navigering */
+h1:focus, h2:focus { outline: none; }
+
+
+/* Förhindra horisontell scroll från hero-zoomen */
+html { overflow-x: clip; }
+.hero { overflow: hidden; }
+
+/* Öppettider */
+.hours { list-style: none; display: grid; gap: .7rem; }
+.hours li { display: flex; justify-content: space-between; gap: 1.5rem; font-size: .95rem; border-bottom: 1px dashed var(--line); padding-bottom: .6rem; }
+.hours li:last-child { border-bottom: 0; }
+.hours span { color: var(--muted); }
+.hours strong { text-align: right; font-weight: 600; color: var(--text); }
+.hours .sub strong { color: var(--copper-2); }
+.strip .wrap { grid-template-columns: repeat(4, 1fr); }
+.happy { display: inline-block; margin-bottom: 2rem; padding: .5rem 1.2rem; border: 1px solid var(--copper); border-radius: 999px; color: var(--copper-2); font-weight: 600; font-size: .9rem; }
+.foot-grid { grid-template-columns: 1.4fr 1fr 1.2fr 1fr; }
+@media (max-width: 900px) { .strip .wrap, .foot-grid { grid-template-columns: 1fr; } }

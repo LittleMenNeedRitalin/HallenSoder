@@ -1,0 +1,90 @@
+@page "/meny"
+@inherits SitePage
+@implements IAsyncDisposable
+
+<PageTitle>Meny – Hallen Södermalm</PageTitle>
+
+<section class="page-hero">
+    <div class="wrap">
+        <span class="eyebrow">Upptäck</span>
+        <h2>Vår meny</h2>
+        <p class="lead" style="margin-top:1rem">Husmanskost, burgare och barmat med hög nivå. Lunch serveras för 119 kr inklusive kaffe.</p>
+    </div>
+</section>
+
+<div class="menu-tabs">
+    <div class="wrap">
+        <div class="tabs-inner">
+            @foreach (var s in MenuData.Sections)
+            {
+                <button class="tab @(s.Id == active ? "active" : "")" @onclick="() => ScrollTo(s.Id)">@s.Title</button>
+            }
+        </div>
+    </div>
+</div>
+
+<section style="padding-top:0">
+    <div class="wrap">
+        @foreach (var s in MenuData.Sections)
+        {
+            <section class="menu-section" id="@s.Id">
+                <h2>@s.Title</h2>
+                @if (s.Note is not null)
+                {
+                    <p class="note">@s.Note</p>
+                }
+                <div class="menu-grid">
+                    @foreach (var d in s.Dishes)
+                    {
+                        <article class="dish">
+                            <div class="dish-top">
+                                <h3>@d.Name</h3>
+                                @if (d.Price is not null)
+                                {
+                                    <span class="price">@d.Price kr</span>
+                                }
+                            </div>
+                            <p>@d.Description</p>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        <div class="menu-banner"><img src="img/food.webp" alt="Meaty fries och burgare" loading="lazy"></div>
+        <p class="menu-foot">Har du allergier eller specialkost? Säg till din servitör. Priser i SEK. Vill du ha dryckesmenyn? Fråga i baren eller ring 08-828 265.</p>
+        <p style="margin-top:2rem"><a class="btn btn-primary" href="boka-bord">Boka bord</a></p>
+    </div>
+</section>
+
+@code {
+    private string active = MenuData.Sections[0].Id;
+    private DotNetObjectReference<Meny>? self;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            self = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("hallen.initMenuSpy", self);
+        }
+    }
+
+    private Task ScrollTo(string id) => JS.InvokeVoidAsync("hallen.scrollToId", id).AsTask();
+
+    [JSInvokable]
+    public async Task SetActive(string id)
+    {
+        if (id == active) return;
+        active = id;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("hallen.scrollTabIntoView");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try { await JS.InvokeVoidAsync("hallen.disposeMenuSpy"); } catch (JSDisconnectedException) { }
+        self?.Dispose();
+    }
+}

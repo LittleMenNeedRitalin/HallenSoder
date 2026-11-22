@@ -1,0 +1,34 @@
+# Admin-konfiguration (Sveltia CMS). Byt ut repo nedan mot ert GitHub-repo.
+backend:
+  name: github
+  repo: DIN-ANVANDARE/DITT-REPO   # <-- t.ex. hallen-sodermalm/hallen-web
+  branch: main
+
+locale: sv
+media_folder: img/uploads
+public_folder: img/uploads
+
+collections:
+  - name: events
+    label: Event & sändningsschema
+    label_singular: Event
+    files:
+      - name: events
+        label: Alla event
+        file: data/events.json
+        format: json
+        fields:
+          - label: Event
+            name: events
+            widget: list
+            label_singular: event
+            summary: "{{fields.date}} · {{fields.title}}"
+            fields:
+              - { label: Typ, name: type, widget: select, default: Match, options: [Match, Quiz, Live-musik, Afterwork, Annat] }
+              - { label: Titel, name: title, widget: string, hint: "T.ex. 'Arsenal – Chelsea' eller 'Torsdagsquiz'" }
+              - { label: Datum & tid, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm", date_format: "YYYY-MM-DD", time_format: "HH:mm", picker_utc: false }
+              - { label: Sport / liga, name: league, widget: string, required: false, hint: "T.ex. Premier League, Allsvenskan, UFC" }
+              - { label: Beskrivning, name: description, widget: text, required: false }
+              - { label: Bild, name: image, widget: image, required: false }
+              - { label: Boka bord-länk visas, name: bookable, widget: boolean, default: true }
+              - { label: Utvalt (visas först på startsidan), name: featured, widget: boolean, default: false }

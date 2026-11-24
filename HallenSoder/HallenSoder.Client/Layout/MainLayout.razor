@@ -2,8 +2,25 @@
 @implements IDisposable
 @inject NavigationManager Nav
 @inject SiteContent C
+@inject SupabaseClient Sb
 
 <header class="site-header @(IsHome ? "" : "solid")">
+    @if (Sb.IsLoggedIn)
+    {
+        <div class="admin-strip">
+            <span>Inloggad som <strong>@Sb.Email</strong></span>
+            <nav aria-label="Adminverktyg">
+                <a href="admin?tab=event">Event</a>
+                <a href="admin?tab=meny">Meny</a>
+                <a href="admin?tab=texter">Texter</a>
+                @if (EditTarget is { } target)
+                {
+                    <a class="as-edit" href="admin?tab=@target">✎ Redigera den här sidan</a>
+                }
+                <button type="button" @onclick="LogoutAsync">Logga ut</button>
+            </nav>
+        </div>
+    }
     @if (!string.IsNullOrWhiteSpace(C["banner.text"]))
     {
         <div class="site-banner">@C["banner.text"]</div>
@@ -51,7 +68,11 @@
                 <a href="mailto:@C["contact.email"]">@C["contact.email"]</a>
             </div>
         </div>
-        <div class="copy"><span>© @DateTime.Now.Year Hallen Södermalm</span><span>@C["footer.copy"]</span></div>
+        <div class="copy">
+            <span>© @DateTime.Now.Year Hallen Södermalm</span>
+            <span>@C["footer.copy"]</span>
+            <a class="staff-link" href="admin">Personal</a>
+        </div>
     </div>
 </footer>
 
@@ -67,7 +88,28 @@
         }
     }
 
-    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+    // Vilken admin-flik som hör till sidan man tittar på (null på admin-sidan själv).
+    private string? EditTarget
+    {
+        get
+        {
+            var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/').ToLowerInvariant();
+            return path switch
+            {
+                "admin" => null,
+                "meny" => "meny",
+                "evenemang" => "event",
+                _ => "texter"
+            };
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        Sb.Changed += OnAuthChanged;
+        await Sb.RestoreAsync();
+    }
 
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
@@ -75,5 +117,13 @@
         StateHasChanged();
     }
 
-    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+    private void OnAuthChanged() => _ = InvokeAsync(StateHasChanged);
+
+    private Task LogoutAsync() => Sb.SignOutAsync();
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+        Sb.Changed -= OnAuthChanged;
+    }
 }

@@ -74,7 +74,7 @@ public static class ContentDefaults
 
         // ---------- Sidfot ----------
         new("footer.about", "Beskrivning i sidfoten", "Sidfot", "Din moderna sportsbar på Södermalm – live-sport, god mat och fräscha drycker.", true),
-        new("footer.copy", "Text längst ned (tomt = ingen)", "Sidfot", "Prototyp – redesign av hallen.one"),
+        new("footer.copy", "Text längst ned (tomt = ingen)", "Sidfot", ""),
     ];
 
     private static readonly Dictionary<string, string> Map = Fields.ToDictionary(f => f.Key, f => f.Default);

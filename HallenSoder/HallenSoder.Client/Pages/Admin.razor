@@ -1,9 +1,18 @@
 @page "/admin"
 @inherits SitePage
+@implements IDisposable
 @inject SupabaseClient Sb
 
 <PageTitle>Admin – Hallen Södermalm</PageTitle>
-<HeadContent><meta name="robots" content="noindex" /></HeadContent>
+<HeadContent>
+    <meta name="robots" content="noindex" />
+    @* Gör att admin kan läggas som app-ikon på hemskärmen (bara på den här sidan). *@
+    <link rel="manifest" href="admin.webmanifest" />
+    <link rel="apple-touch-icon" href="img/admin-icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Hallen Admin" />
+</HeadContent>
 
 <section class="page-hero">
     <div class="wrap">
@@ -66,6 +75,8 @@
                     <AdminTexts />
                     break;
             }
+
+            <p class="mas-desc admin-tip">📱 Tips: öppna den här sidan i mobilen och välj <strong>Lägg till på startskärmen</strong> i webbläsarens meny, så får du Hallen Admin som en app-ikon.</p>
         }
     </div>
 </section>
@@ -78,11 +89,30 @@
     private string? error;
     private string tab = "Event";
 
+    // Direktlänkar, t.ex. /admin?tab=meny
+    [SupplyParameterFromQuery(Name = "tab")] public string? TabParam { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        tab = TabParam?.ToLowerInvariant() switch
+        {
+            "meny" => "Meny",
+            "texter" => "Texter",
+            "event" => "Event",
+            _ => tab
+        };
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        Sb.Changed += OnAuthChanged;
         await Sb.RestoreAsync();
         ready = true;
     }
+
+    private void OnAuthChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Sb.Changed -= OnAuthChanged;
 
     private async Task LoginAsync()
     {

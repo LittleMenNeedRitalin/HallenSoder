@@ -1,9 +1,9 @@
 @charset "UTF-8";
 /* Hallen Södermalm – prototyp */
 :root {
-  --bg: #0f3236;
-  --bg-2: #154045;
-  --surface: #1d5252;
+  --bg: #163f43;
+  --bg-2: #1c4b50;
+  --surface: #266161;
   --line: rgba(255, 255, 255, .1);
   --text: #f2ede4;
   --muted: #a9bdb9;
@@ -73,7 +73,7 @@ h3 { font-size: 1.5rem; }
   border-bottom: 1px solid transparent;
 }
 body.scrolled .site-header, .site-header.solid {
-  background: rgba(15,50,54, .85);
+  background: rgba(22,63,67, .85);
   backdrop-filter: blur(14px);
   border-color: var(--line);
 }
@@ -110,8 +110,8 @@ body.scrolled .site-header, .site-header.solid {
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background:
-    linear-gradient(180deg, rgba(15,50,54,.65) 0%, rgba(15,50,54,.35) 40%, var(--bg) 100%),
-    linear-gradient(90deg, rgba(15,50,54,.8), transparent 70%);
+    linear-gradient(180deg, rgba(22,63,67,.65) 0%, rgba(22,63,67,.35) 40%, var(--bg) 100%),
+    linear-gradient(90deg, rgba(22,63,67,.8), transparent 70%);
 }
 @keyframes slow-zoom { to { transform: scale(1.08); } }
 .hero h1 span { color: var(--copper); display: block; }
@@ -155,7 +155,7 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
 .card:hover { transform: translateY(-6px); border-color: var(--copper); }
 .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .6s; }
 .card:hover img { transform: scale(1.06); }
-.card::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 30%, rgba(15,50,54,.95)); }
+.card::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 30%, rgba(22,63,67,.95)); }
 .card-body { padding: 1.8rem; }
 .card-body p { color: #cdd8d4; font-size: .97rem; margin: .5rem 0 1rem; }
 .card-link { color: var(--copper-2); font-weight: 700; font-size: .9rem; }
@@ -164,7 +164,7 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
 /* Afterwork band */
 .band { position: relative; text-align: center; isolation: isolate; overflow: hidden; }
 .band::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("../img/bar-counter.webp") center 40%/cover; }
-.band::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(15,50,54,.82); }
+.band::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(22,63,67,.82); }
 .band h2 { margin-bottom: 1rem; }
 .band .lead { margin: 0 auto 2rem; }
 
@@ -178,7 +178,7 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
 /* Menu */
 .menu-tabs {
   position: sticky; top: 76px; z-index: 20;
-  background: rgba(15,50,54,.92); backdrop-filter: blur(12px);
+  background: rgba(22,63,67,.92); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 .tabs-inner { display: flex; gap: .6rem; overflow-x: auto; padding: 1rem 0; scrollbar-width: none; }
@@ -218,7 +218,7 @@ section { padding: clamp(70px, 10vw, 130px) 0; }
 .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; }
 
 /* Footer */
-.site-footer { background: #0b2629; border-top: 1px solid var(--line); padding: 4rem 0 2rem; }
+.site-footer { background: #11302f; border-top: 1px solid var(--line); padding: 4rem 0 2rem; }
 .foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 3rem; }
 .foot-grid img { height: 62px; margin-bottom: 1rem; }
 .foot-grid h4 { font-family: var(--font-head); text-transform: uppercase; letter-spacing: .15em; color: var(--copper-2); margin-bottom: .8rem; }
@@ -355,3 +355,16 @@ html { overflow-x: clip; }
   .event.has-img .event-img { grid-column: 1 / -1; grid-row: 1; width: 100%; height: 180px; }
   .event.has-img .event-date { grid-row: 2; }
 }
+
+/* Adminrad högst upp (syns bara för inloggad personal) */
+.admin-strip { background: #11302f; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: .6rem 1.5rem; flex-wrap: wrap; padding: .4rem max(1rem, 4%); font-size: .82rem; color: var(--muted); }
+.admin-strip strong { color: var(--text); font-weight: 600; }
+.admin-strip nav { display: flex; align-items: center; gap: .3rem 1.1rem; flex-wrap: wrap; }
+.admin-strip a, .admin-strip button { color: var(--text); background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; padding: 0; }
+.admin-strip a:hover, .admin-strip button:hover { color: var(--copper-2); }
+.admin-strip .as-edit { background: var(--copper); color: #1a0e03; padding: .2rem .8rem; border-radius: 999px; }
+.admin-strip .as-edit:hover { background: var(--copper-2); color: #1a0e03; }
+.admin-tip { margin-top: 2.5rem; }
+/* Diskret personallänk i sidfoten */
+.staff-link { color: var(--muted); opacity: .6; font-size: .82rem; }
+.staff-link:hover { opacity: 1; color: var(--text); }

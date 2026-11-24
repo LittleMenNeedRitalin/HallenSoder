@@ -38,10 +38,13 @@ public class SupabaseClient(HttpClient http, IConfiguration config, IJSRuntime j
     };
 
     private Session? session;
-    private bool restored;
+    private Task? restoreTask;
 
     private string Url => (config["Supabase:Url"] ?? "").TrimEnd('/');
     private string Key => config["Supabase:Key"] ?? "";
+
+    /// <summary>Skickas när inloggningsstatus ändras (inloggning, utloggning, återställd session).</summary>
+    public event Action? Changed;
 
     public bool IsConfigured => Url.Length > 0 && Key.Length > 0;
     public bool IsLoggedIn => session is not null;
@@ -50,10 +53,11 @@ public class SupabaseClient(HttpClient http, IConfiguration config, IJSRuntime j
     // ---------- Inloggning ----------
 
     /// <summary>Återställer en tidigare inloggning från webbläsaren (om den finns).</summary>
-    public async Task RestoreAsync()
+    public Task RestoreAsync() => restoreTask ??= RestoreCoreAsync();
+
+    // Delas av alla som anropar RestoreAsync, så att ingen får svar innan återställningen är klar.
+    private async Task RestoreCoreAsync()
     {
-        if (restored) return;
-        restored = true;
         try
         {
             var raw = await js.InvokeAsync<string?>("localStorage.getItem", StorageKey);
@@ -63,6 +67,7 @@ public class SupabaseClient(HttpClient http, IConfiguration config, IJSRuntime j
         catch (Exception) { session = null; }
 
         await EnsureFreshAsync();
+        if (session is not null) Changed?.Invoke();
     }
 
     /// <summary>Returnerar ett felmeddelande, eller null om inloggningen lyckades.</summary>
@@ -92,12 +97,14 @@ public class SupabaseClient(HttpClient http, IConfiguration config, IJSRuntime j
     {
         session = null;
         await js.InvokeVoidAsync("localStorage.removeItem", StorageKey);
+        Changed?.Invoke();
     }
 
     private async Task StoreAsync(TokenResponse token, string? email)
     {
         session = new Session(token.AccessToken, token.RefreshToken, DateTimeOffset.UtcNow.AddSeconds(token.ExpiresIn), email);
         await js.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(session, Json));
+        Changed?.Invoke();
     }
 
     private async Task EnsureFreshAsync()

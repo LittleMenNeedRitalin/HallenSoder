@@ -1,0 +1,223 @@
+@inject EventService Events
+@inject IJSRuntime JS
+
+<div class="admin-bar">
+    <h3>Event &amp; sändningsschema</h3>
+    <button class="btn btn-primary" @onclick="NewEvent">+ Nytt event</button>
+</div>
+
+@if (message is not null)
+{
+    <div class="alert">@message</div>
+}
+@if (error is not null)
+{
+    <p class="form-error">@error</p>
+}
+
+@if (form is not null)
+{
+    <form class="panel event-form" @onsubmit="SaveAsync">
+        <h3>@(form.Id is null ? "Nytt event" : "Ändra event")</h3>
+        <div class="form-grid">
+            <label class="field">Typ
+                <select @bind="form.Type">
+                    @foreach (var t in Types)
+                    {
+                        <option value="@t">@t</option>
+                    }
+                </select>
+            </label>
+            <label class="field">Titel
+                <input type="text" @bind="form.Title" placeholder="T.ex. Arsenal – Chelsea eller Torsdagsquiz" required />
+            </label>
+            <div class="field">Datum och tid (svensk tid)
+                <div class="datetime">
+                    <input type="date" @bind="formDate" @bind:format="yyyy-MM-dd" required />
+                    <select aria-label="Timme" @bind="formHour">
+                        @for (var h = 0; h < 24; h++)
+                        {
+                            <option value="@h">@h.ToString("00")</option>
+                        }
+                    </select>
+                    <span>:</span>
+                    <select aria-label="Minut" @bind="formMinute">
+                        @foreach (var m in MinuteOptions)
+                        {
+                            <option value="@m">@m.ToString("00")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <label class="field">Sport / liga (valfritt)
+                <input type="text" @bind="form.League" placeholder="T.ex. Premier League" />
+            </label>
+        </div>
+        <label class="field">Beskrivning (valfritt)
+            <textarea rows="3" @bind="form.Description"></textarea>
+        </label>
+        <div class="field">Bild (valfritt)
+            @if (!string.IsNullOrEmpty(form.ImageUrl))
+            {
+                <div class="img-preview">
+                    <img src="@form.ImageUrl" alt="Förhandsvisning" />
+                    <button type="button" class="btn btn-ghost" @onclick="RemoveImage">Ta bort bild</button>
+                </div>
+            }
+            <input type="file" accept="image/*" @ref="fileInput" @onchange="PickImageAsync" disabled="@uploading" />
+            @if (uploading)
+            {
+                <span>Laddar upp bilden…</span>
+            }
+        </div>
+        <div class="checks">
+            <label><input type="checkbox" @bind="form.Bookable" /> Visa "Boka bord"-knapp</label>
+            <label><input type="checkbox" @bind="form.Featured" /> Utvald (visas först på startsidan)</label>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit" disabled="@busy">@(busy ? "Sparar…" : "Spara")</button>
+            <button class="btn btn-ghost" type="button" @onclick="CancelForm">Avbryt</button>
+        </div>
+    </form>
+}
+
+<h3 style="margin:2.5rem 0 1rem">Alla event</h3>
+@if (all is null)
+{
+    <p class="lead">Laddar event…</p>
+}
+else if (all.Count == 0)
+{
+    <p class="lead">Inga event ännu. Klicka på <strong>+ Nytt event</strong> för att lägga till det första.</p>
+}
+else
+{
+    <div class="admin-list">
+        @foreach (var e in all)
+        {
+            <div class="admin-row @(e.Date < SwedishTime.Now.AddHours(-3) ? "past" : "")">
+                <div class="admin-when">
+                    <strong>@e.Date.ToString("d MMM yyyy")</strong>
+                    <span>@e.Date.ToString("HH:mm")</span>
+                </div>
+                <div class="admin-what">
+                    @if (!string.IsNullOrEmpty(e.ImageUrl))
+                    {
+                        <img class="admin-thumb" src="@e.ImageUrl" alt="" />
+                    }
+                    <span class="event-type">@e.Icon @e.Type@(string.IsNullOrWhiteSpace(e.League) ? "" : " · " + e.League)@(e.Featured ? " · ★ utvald" : "")</span>
+                    <div>@e.Title</div>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-ghost" @onclick="() => Edit(e)">Ändra</button>
+                    <button class="btn btn-ghost danger" @onclick="() => DeleteAsync(e)">Ta bort</button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private static readonly string[] Types = ["Match", "Quiz", "Live-musik", "Afterwork", "Annat"];
+
+    private bool busy;
+    private string? error, message;
+    private List<SiteEvent>? all;
+    private SiteEvent? form;
+    private ElementReference fileInput;
+    private bool uploading;
+    private DateTime formDate = DateTime.Today;
+    private int formHour, formMinute;
+
+    // Minuter var 5:e minut, plus ev. avvikande minut från ett befintligt event.
+    private IEnumerable<int> MinuteOptions =>
+        Enumerable.Range(0, 12).Select(i => i * 5).Append(formMinute).Distinct().OrderBy(m => m);
+
+    private void LoadDateFields(DateTime d)
+    {
+        formDate = d.Date;
+        formHour = d.Hour;
+        formMinute = d.Minute;
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync() => all = await Events.GetAllAsync();
+
+    private void NewEvent()
+    {
+        message = null; error = null;
+        var start = SwedishTime.Now.Date.AddDays(1).AddHours(18);
+        form = new SiteEvent { Type = "Match", Date = start };
+        LoadDateFields(start);
+    }
+
+    private void Edit(SiteEvent e)
+    {
+        message = null; error = null;
+        form = new SiteEvent
+        {
+            Id = e.Id, Type = e.Type, Title = e.Title, Date = e.Date, League = e.League,
+            Description = e.Description, ImageUrl = e.ImageUrl, Bookable = e.Bookable, Featured = e.Featured
+        };
+        LoadDateFields(e.Date);
+    }
+
+    private async Task PickImageAsync()
+    {
+        if (form is null) return;
+        uploading = true; error = null;
+        StateHasChanged();
+        try
+        {
+            var bytes = await JS.InvokeAsync<byte[]?>("hallen.pickImage", fileInput, 1600);
+            if (bytes is null || bytes.Length == 0) return;
+            var (url, err) = await Events.UploadImageAsync(bytes);
+            if (err is not null) error = err;
+            else form.ImageUrl = url;
+        }
+        catch (JSException)
+        {
+            error = "Kunde inte läsa bilden. Välj en JPG eller PNG.";
+        }
+        finally
+        {
+            uploading = false;
+        }
+    }
+
+    private void RemoveImage()
+    {
+        if (form is not null) form.ImageUrl = null;
+    }
+
+    private void CancelForm() { form = null; error = null; }
+
+    private async Task SaveAsync()
+    {
+        if (form is null) return;
+        busy = true; error = null; message = null;
+        form.Date = formDate.Date.AddHours(formHour).AddMinutes(formMinute);
+        var wasNew = form.Id is null;
+        error = await Events.SaveAsync(form);
+        busy = false;
+        if (error is null)
+        {
+            form = null;
+            message = wasNew ? "Eventet är tillagt och syns nu på sajten." : "Eventet är uppdaterat.";
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(SiteEvent e)
+    {
+        if (e.Id is null) return;
+        if (!await JS.InvokeAsync<bool>("confirm", $"Ta bort \"{e.Title}\"?")) return;
+        error = await Events.DeleteAsync(e);
+        if (error is null)
+        {
+            message = "Eventet är borttaget.";
+            await LoadAsync();
+        }
+    }
+}

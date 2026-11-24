@@ -1,0 +1,79 @@
+@inject SiteContent C
+
+<div class="admin-bar">
+    <h3>Texter på sajten</h3>
+    <button class="btn btn-primary" @onclick="SaveAllAsync" disabled="@busy">@(busy ? "Sparar…" : "Spara ändringar")</button>
+</div>
+<p class="mas-desc" style="margin-bottom:1.5rem">Ändringar syns för besökare nästa gång de laddar sidan. Tryck <strong>Återställ</strong> vid ett fält för att gå tillbaka till standardtexten.</p>
+
+@if (message is not null)
+{
+    <div class="alert">@message</div>
+}
+@if (error is not null)
+{
+    <p class="form-error">@error</p>
+}
+
+@foreach (var group in Groups)
+{
+    <details class="panel text-group" open="@(group.Key == "Meddelande")">
+        <summary>@group.Key</summary>
+        <div class="text-fields">
+            @foreach (var f in group)
+            {
+                var key = f.Key;
+                <div class="field">
+                    <span class="field-head">
+                        @f.Label
+                        @if (edits[key] != f.Default)
+                        {
+                            <button type="button" class="link-btn" @onclick="() => Reset(f)">Återställ</button>
+                        }
+                    </span>
+                    @if (f.Multiline)
+                    {
+                        <textarea rows="3" value="@edits[key]" @oninput="e => edits[key] = e.Value?.ToString() ?? string.Empty"></textarea>
+                    }
+                    else
+                    {
+                        <input type="text" value="@edits[key]" @oninput="e => edits[key] = e.Value?.ToString() ?? string.Empty" />
+                    }
+                </div>
+            }
+        </div>
+    </details>
+}
+
+<p style="margin-top:1.5rem"><button class="btn btn-primary" @onclick="SaveAllAsync" disabled="@busy">@(busy ? "Sparar…" : "Spara ändringar")</button></p>
+
+@code {
+    private readonly Dictionary<string, string> edits = new();
+    private bool busy;
+    private string? error, message;
+
+    private static IEnumerable<IGrouping<string, ContentField>> Groups => ContentDefaults.Fields.GroupBy(f => f.Group);
+
+    protected override void OnInitialized()
+    {
+        foreach (var f in ContentDefaults.Fields) edits[f.Key] = C[f.Key];
+    }
+
+    private void Reset(ContentField f) => edits[f.Key] = f.Default;
+
+    private async Task SaveAllAsync()
+    {
+        busy = true; error = null; message = null;
+        var saved = 0;
+        foreach (var f in ContentDefaults.Fields)
+        {
+            if (edits[f.Key] == C[f.Key]) continue;
+            var err = await C.SaveAsync(f.Key, edits[f.Key]);
+            if (err is not null) { error = err; break; }
+            saved++;
+        }
+        busy = false;
+        if (error is null)
+            message = saved == 0 ? "Inga ändringar att spara." : $"Sparat! {saved} text{(saved == 1 ? "" : "er")} uppdaterad{(saved == 1 ? "" : "e")}. Besökare ser ändringen vid nästa sidladdning.";
+    }
+}

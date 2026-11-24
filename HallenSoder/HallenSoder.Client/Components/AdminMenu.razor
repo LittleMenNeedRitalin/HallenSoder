@@ -1,0 +1,305 @@
+@inject MenuService Menu
+@inject IJSRuntime JS
+
+<div class="admin-bar">
+    <h3>Meny</h3>
+    @if (sections is { Count: > 0 })
+    {
+        <button class="btn btn-primary" @onclick="NewSection">+ Ny kategori</button>
+    }
+</div>
+
+@if (message is not null)
+{
+    <div class="alert">@message</div>
+}
+@if (error is not null)
+{
+    <p class="form-error">@error</p>
+}
+
+@if (editSection is not null)
+{
+    <form class="panel event-form" @onsubmit="SaveSectionAsync">
+        <h3>@(editSection.Id is null ? "Ny kategori" : "Ändra kategori")</h3>
+        <label class="field">Namn
+            <input type="text" @bind="editSection.Title" placeholder="T.ex. Varmrätter" required />
+        </label>
+        <label class="field">Notering under rubriken (valfritt)
+            <input type="text" @bind="editSection.Note" placeholder="T.ex. 119 kr inkl. kaffe · fredagar 11–14" />
+        </label>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit" disabled="@busy">@(busy ? "Sparar…" : "Spara")</button>
+            <button class="btn btn-ghost" type="button" @onclick="() => editSection = null">Avbryt</button>
+        </div>
+    </form>
+}
+
+@if (editItem is not null && sections is not null)
+{
+    <form class="panel event-form" @onsubmit="SaveItemAsync">
+        <h3>@(editItem.Id is null ? "Ny rätt" : "Ändra rätt")</h3>
+        <div class="form-grid">
+            <label class="field">Namn
+                <input type="text" @bind="editItem.Name" required />
+            </label>
+            <label class="field">Pris i kr (tomt = inget pris visas)
+                <input type="number" min="0" @bind="editItem.Price" />
+            </label>
+            <label class="field">Kategori
+                <select @bind="editItem.SectionId">
+                    @foreach (var s in sections)
+                    {
+                        <option value="@s.Id">@s.Title</option>
+                    }
+                </select>
+            </label>
+        </div>
+        <label class="field">Beskrivning (valfritt)
+            <textarea rows="3" @bind="editItem.Description"></textarea>
+        </label>
+        <div class="checks">
+            <label><input type="checkbox" @bind="editItem.Hidden" /> Dold (visas inte för besökare)</label>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit" disabled="@busy">@(busy ? "Sparar…" : "Spara")</button>
+            <button class="btn btn-ghost" type="button" @onclick="() => editItem = null">Avbryt</button>
+        </div>
+    </form>
+}
+
+@if (sections is null)
+{
+    <p class="lead">Laddar menyn…</p>
+}
+else if (sections.Count == 0)
+{
+    <div class="panel">
+        @if (loadFailed)
+        {
+            <p>Kunde inte läsa menyn från databasen. Kontrollera att SQL-skriptet för meny och texter är körd i Supabase.</p>
+        }
+        else
+        {
+            <p>Menyn är tom i databasen. Sajten visar just nu standardmenyn. Importera den för att kunna redigera den här.</p>
+            <p style="margin-top:1rem"><button class="btn btn-primary" @onclick="ImportAsync" disabled="@busy">@(busy ? "Importerar…" : "Importera standardmenyn")</button></p>
+        }
+    </div>
+}
+else
+{
+    @foreach (var s in sections)
+    {
+        <div class="panel menu-admin-section">
+            <div class="mas-head">
+                <div>
+                    <h3>@s.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(s.Note))
+                    {
+                        <span class="mas-note">@s.Note</span>
+                    }
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-ghost" title="Flytta upp" @onclick="() => MoveSectionAsync(s, -1)" disabled="@busy">▲</button>
+                    <button class="btn btn-ghost" title="Flytta ned" @onclick="() => MoveSectionAsync(s, 1)" disabled="@busy">▼</button>
+                    <button class="btn btn-ghost" @onclick="() => EditSection(s)">Ändra</button>
+                    <button class="btn btn-ghost danger" @onclick="() => DeleteSectionAsync(s)">Ta bort</button>
+                </div>
+            </div>
+
+            <div class="admin-list">
+                @foreach (var i in s.Items)
+                {
+                    <div class="admin-row menu-row @(i.Hidden ? "past" : "")">
+                        <div class="admin-what">
+                            <strong>@i.Name</strong>@(i.Hidden ? " (dold)" : "")
+                            @if (!string.IsNullOrWhiteSpace(i.Description))
+                            {
+                                <div class="mas-desc">@i.Description</div>
+                            }
+                        </div>
+                        <div class="mas-price">@(i.Price is null ? "" : $"{i.Price} kr")</div>
+                        <div class="admin-actions">
+                            <button class="btn btn-ghost" title="Flytta upp" @onclick="() => MoveItemAsync(s, i, -1)" disabled="@busy">▲</button>
+                            <button class="btn btn-ghost" title="Flytta ned" @onclick="() => MoveItemAsync(s, i, 1)" disabled="@busy">▼</button>
+                            <button class="btn btn-ghost" @onclick="() => ToggleHiddenAsync(i)">@(i.Hidden ? "Visa" : "Dölj")</button>
+                            <button class="btn btn-ghost" @onclick="() => EditItem(i)">Ändra</button>
+                            <button class="btn btn-ghost danger" @onclick="() => DeleteItemAsync(i)">Ta bort</button>
+                        </div>
+                    </div>
+                }
+                @if (s.Items.Count == 0)
+                {
+                    <p class="mas-desc">Inga rätter i den här kategorin ännu.</p>
+                }
+            </div>
+            <p style="margin-top:1rem"><button class="btn btn-ghost" @onclick="() => NewItem(s)">+ Ny rätt</button></p>
+        </div>
+    }
+}
+
+@code {
+    private List<MenuSectionRow>? sections;
+    private MenuSectionRow? editSection;
+    private MenuItemRow? editItem;
+    private bool busy, loadFailed;
+    private string? error, message;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        var rows = await Menu.GetAsync(includeHidden: true);
+        loadFailed = rows is null;
+        sections = rows ?? new();
+    }
+
+    private async Task<bool> RunAsync(Func<Task<string?>> action, string? done = null)
+    {
+        busy = true; error = null; message = null;
+        error = await action();
+        busy = false;
+        if (error is null)
+        {
+            if (done is not null) message = done;
+            await LoadAsync();
+            return true;
+        }
+        return false;
+    }
+
+    // ---------- Kategorier ----------
+
+    private void NewSection()
+    {
+        message = error = null; editItem = null;
+        editSection = new MenuSectionRow { Sort = (sections!.Select(s => s.Sort).DefaultIfEmpty(0).Max()) + 10 };
+    }
+
+    private void EditSection(MenuSectionRow s)
+    {
+        message = error = null; editItem = null;
+        editSection = new MenuSectionRow { Id = s.Id, Slug = s.Slug, Title = s.Title, Note = s.Note, Sort = s.Sort };
+    }
+
+    private async Task SaveSectionAsync()
+    {
+        if (editSection is null) return;
+        if (editSection.Id is null)
+        {
+            var slug = MenuService.Slugify(editSection.Title);
+            var unique = slug; var n = 2;
+            while (sections!.Any(s => s.Slug == unique)) unique = $"{slug}-{n++}";
+            editSection.Slug = unique;
+        }
+        var toSave = editSection;
+        if (await RunAsync(() => Menu.SaveSectionAsync(toSave), "Kategorin är sparad."))
+            editSection = null;
+    }
+
+    private async Task DeleteSectionAsync(MenuSectionRow s)
+    {
+        if (s.Id is null) return;
+        var text = s.Items.Count > 0
+            ? $"Ta bort kategorin \"{s.Title}\" och alla {s.Items.Count} rätter i den?"
+            : $"Ta bort kategorin \"{s.Title}\"?";
+        if (!await JS.InvokeAsync<bool>("confirm", text)) return;
+        await RunAsync(() => Menu.DeleteSectionAsync(s.Id.Value), "Kategorin är borttagen.");
+    }
+
+    private async Task MoveSectionAsync(MenuSectionRow s, int dir)
+    {
+        var list = sections!.ToList();
+        var i = list.IndexOf(s); var j = i + dir;
+        if (i < 0 || j < 0 || j >= list.Count) return;
+        (list[i], list[j]) = (list[j], list[i]);
+        await RunAsync(async () =>
+        {
+            for (var k = 0; k < list.Count; k++)
+            {
+                var want = (k + 1) * 10;
+                if (list[k].Sort == want || list[k].Id is null) continue;
+                var err = await Menu.SetSectionSortAsync(list[k].Id!.Value, want);
+                if (err is not null) return err;
+            }
+            return null;
+        });
+    }
+
+    // ---------- Rätter ----------
+
+    private void NewItem(MenuSectionRow s)
+    {
+        message = error = null; editSection = null;
+        editItem = new MenuItemRow { SectionId = s.Id!.Value, Sort = (s.Items.Select(x => x.Sort).DefaultIfEmpty(0).Max()) + 10 };
+    }
+
+    private void EditItem(MenuItemRow i)
+    {
+        message = error = null; editSection = null;
+        editItem = new MenuItemRow
+        {
+            Id = i.Id, SectionId = i.SectionId, Name = i.Name, Description = i.Description,
+            Price = i.Price, Sort = i.Sort, Hidden = i.Hidden
+        };
+    }
+
+    private async Task SaveItemAsync()
+    {
+        if (editItem is null) return;
+        var toSave = editItem;
+        // Flyttas rätten till en annan kategori hamnar den sist där.
+        var original = sections!.SelectMany(s => s.Items).FirstOrDefault(x => x.Id == toSave.Id);
+        if (original is not null && original.SectionId != toSave.SectionId)
+        {
+            var target = sections!.First(s => s.Id == toSave.SectionId);
+            toSave.Sort = (target.Items.Select(x => x.Sort).DefaultIfEmpty(0).Max()) + 10;
+        }
+        if (await RunAsync(() => Menu.SaveItemAsync(toSave), "Rätten är sparad."))
+            editItem = null;
+    }
+
+    private async Task ToggleHiddenAsync(MenuItemRow i)
+    {
+        var copy = new MenuItemRow
+        {
+            Id = i.Id, SectionId = i.SectionId, Name = i.Name, Description = i.Description,
+            Price = i.Price, Sort = i.Sort, Hidden = !i.Hidden
+        };
+        await RunAsync(() => Menu.SaveItemAsync(copy), copy.Hidden ? "Rätten är dold för besökare." : "Rätten visas igen.");
+    }
+
+    private async Task DeleteItemAsync(MenuItemRow i)
+    {
+        if (i.Id is null) return;
+        if (!await JS.InvokeAsync<bool>("confirm", $"Ta bort \"{i.Name}\"?")) return;
+        await RunAsync(() => Menu.DeleteItemAsync(i.Id.Value), "Rätten är borttagen.");
+    }
+
+    private async Task MoveItemAsync(MenuSectionRow s, MenuItemRow item, int dir)
+    {
+        var list = s.Items.ToList();
+        var i = list.IndexOf(item); var j = i + dir;
+        if (i < 0 || j < 0 || j >= list.Count) return;
+        (list[i], list[j]) = (list[j], list[i]);
+        await RunAsync(async () =>
+        {
+            for (var k = 0; k < list.Count; k++)
+            {
+                var want = (k + 1) * 10;
+                if (list[k].Sort == want || list[k].Id is null) continue;
+                var err = await Menu.SetItemSortAsync(list[k].Id!.Value, want);
+                if (err is not null) return err;
+            }
+            return null;
+        });
+    }
+
+    // ---------- Import ----------
+
+    private async Task ImportAsync()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Importera standardmenyn till databasen?")) return;
+        await RunAsync(() => Menu.ImportDefaultsAsync(), "Standardmenyn är importerad. Nu kan du redigera den.");
+    }
+}

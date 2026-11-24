@@ -1,0 +1,100 @@
+@page "/admin"
+@inherits SitePage
+@inject SupabaseClient Sb
+
+<PageTitle>Admin – Hallen Södermalm</PageTitle>
+<HeadContent><meta name="robots" content="noindex" /></HeadContent>
+
+<section class="page-hero">
+    <div class="wrap">
+        <span class="eyebrow">Personal</span>
+        <h2>Admin</h2>
+        <p class="lead" style="margin-top:1rem">Hantera event, meny och texter på sajten.</p>
+    </div>
+</section>
+
+<section style="padding-top:3rem">
+    <div class="wrap">
+        @if (!ready)
+        {
+            <p class="lead">Laddar…</p>
+        }
+        else if (!Sb.IsConfigured)
+        {
+            <div class="alert"><strong>Supabase är inte konfigurerat.</strong> Fyll i <code>Url</code> och <code>Key</code> i <code>wwwroot/appsettings.json</code>.</div>
+        }
+        else if (!Sb.IsLoggedIn)
+        {
+            <form class="panel login" @onsubmit="LoginAsync">
+                <h3>Logga in</h3>
+                <label class="field">E-post
+                    <input type="email" autocomplete="username" @bind="email" @bind:event="oninput" required />
+                </label>
+                <label class="field">Lösenord
+                    <input type="password" autocomplete="current-password" @bind="password" @bind:event="oninput" required />
+                </label>
+                @if (error is not null)
+                {
+                    <p class="form-error">@error</p>
+                }
+                <button class="btn btn-primary" type="submit" disabled="@busy">@(busy ? "Loggar in…" : "Logga in")</button>
+            </form>
+        }
+        else
+        {
+            <div class="admin-bar">
+                <span>Inloggad som <strong>@Sb.Email</strong></span>
+                <button class="btn btn-ghost" @onclick="LogoutAsync">Logga ut</button>
+            </div>
+
+            <div class="admin-tabs">
+                @foreach (var t in Tabs)
+                {
+                    <button class="tab @(t == tab ? "active" : "")" @onclick="() => tab = t">@t</button>
+                }
+            </div>
+
+            @switch (tab)
+            {
+                case "Event":
+                    <AdminEvents />
+                    break;
+                case "Meny":
+                    <AdminMenu />
+                    break;
+                case "Texter":
+                    <AdminTexts />
+                    break;
+            }
+        }
+    </div>
+</section>
+
+@code {
+    private static readonly string[] Tabs = ["Event", "Meny", "Texter"];
+
+    private bool ready, busy;
+    private string email = "", password = "";
+    private string? error;
+    private string tab = "Event";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Sb.RestoreAsync();
+        ready = true;
+    }
+
+    private async Task LoginAsync()
+    {
+        busy = true; error = null;
+        error = await Sb.SignInAsync(email.Trim(), password);
+        busy = false;
+        if (error is null) password = "";
+    }
+
+    private async Task LogoutAsync()
+    {
+        await Sb.SignOutAsync();
+        error = null;
+    }
+}

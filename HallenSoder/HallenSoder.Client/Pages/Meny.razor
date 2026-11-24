@@ -1,71 +1,94 @@
 @page "/meny"
 @inherits SitePage
 @implements IAsyncDisposable
+@inject MenuService Menu
+@inject SiteContent C
 
 <PageTitle>Meny – Hallen Södermalm</PageTitle>
 
 <section class="page-hero">
     <div class="wrap">
         <span class="eyebrow">Upptäck</span>
-        <h2>Vår meny</h2>
-        <p class="lead" style="margin-top:1rem">Husmanskost, burgare och barmat med hög nivå. Lunch serveras för 119 kr inklusive kaffe.</p>
+        <h2>@C["menu.title"]</h2>
+        <p class="lead" style="margin-top:1rem"><Multiline Text="@C["menu.intro"]" /></p>
     </div>
 </section>
 
-<div class="menu-tabs">
-    <div class="wrap">
-        <div class="tabs-inner">
-            @foreach (var s in MenuData.Sections)
-            {
-                <button class="tab @(s.Id == active ? "active" : "")" @onclick="() => ScrollTo(s.Id)">@s.Title</button>
-            }
+@if (sections is null)
+{
+    <section><div class="wrap"><p class="lead">Laddar menyn…</p></div></section>
+}
+else
+{
+    <div class="menu-tabs">
+        <div class="wrap">
+            <div class="tabs-inner">
+                @foreach (var s in sections)
+                {
+                    <button class="tab @(s.Slug == active ? "active" : "")" @onclick="() => ScrollTo(s.Slug)">@s.Title</button>
+                }
+            </div>
         </div>
     </div>
-</div>
 
-<section style="padding-top:0">
-    <div class="wrap">
-        @foreach (var s in MenuData.Sections)
-        {
-            <section class="menu-section" id="@s.Id">
-                <h2>@s.Title</h2>
-                @if (s.Note is not null)
-                {
-                    <p class="note">@s.Note</p>
-                }
-                <div class="menu-grid">
-                    @foreach (var d in s.Dishes)
+    <section style="padding-top:0">
+        <div class="wrap">
+            @foreach (var s in sections)
+            {
+                <section class="menu-section" id="@s.Slug">
+                    <h2>@s.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(s.Note))
                     {
-                        <article class="dish">
-                            <div class="dish-top">
-                                <h3>@d.Name</h3>
-                                @if (d.Price is not null)
-                                {
-                                    <span class="price">@d.Price kr</span>
-                                }
-                            </div>
-                            <p>@d.Description</p>
-                        </article>
+                        <p class="note">@s.Note</p>
                     }
-                </div>
-            </section>
-        }
+                    <div class="menu-grid">
+                        @foreach (var d in s.Items)
+                        {
+                            <article class="dish">
+                                <div class="dish-top">
+                                    <h3>@d.Name</h3>
+                                    @if (d.Price is not null)
+                                    {
+                                        <span class="price">@d.Price kr</span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(d.Description))
+                                {
+                                    <p>@d.Description</p>
+                                }
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
 
-        <div class="menu-banner"><img src="img/food.webp" alt="Meaty fries och burgare" loading="lazy"></div>
-        <p class="menu-foot">Har du allergier eller specialkost? Säg till din servitör. Priser i SEK. Vill du ha dryckesmenyn? Fråga i baren eller ring 08-828 265.</p>
-        <p style="margin-top:2rem"><a class="btn btn-primary" href="boka-bord">Boka bord</a></p>
-    </div>
-</section>
+            <div class="menu-banner"><img src="img/food.webp" alt="Meaty fries och burgare" loading="lazy"></div>
+            <p class="menu-foot"><Multiline Text="@C["menu.footer"]" /></p>
+            <p style="margin-top:2rem"><a class="btn btn-primary" href="boka-bord">Boka bord</a></p>
+        </div>
+    </section>
+}
 
 @code {
-    private string active = MenuData.Sections[0].Id;
+    private List<MenuSectionRow>? sections;
+    private string active = "";
+    private bool spyStarted;
     private DotNetObjectReference<Meny>? self;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rows = await Menu.GetAsync(includeHidden: false);
+        // Tom eller otillgänglig databas: använd standardmenyn så att sidan aldrig blir tom.
+        sections = rows is { Count: > 0 } ? rows : MenuData.ToRows();
+        active = sections[0].Slug;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
+        if (sections is not null && !spyStarted)
         {
+            spyStarted = true;
             self = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("hallen.initMenuSpy", self);
         }

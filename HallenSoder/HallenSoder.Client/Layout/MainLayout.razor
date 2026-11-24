@@ -1,8 +1,13 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager Nav
+@inject SiteContent C
 
 <header class="site-header @(IsHome ? "" : "solid")">
+    @if (!string.IsNullOrWhiteSpace(C["banner.text"]))
+    {
+        <div class="site-banner">@C["banner.text"]</div>
+    }
     <div class="wrap nav">
         <a class="logo" href="" aria-label="Hallen Södermalm – startsida"><img src="img/logo.png" alt="Hallen"></a>
         <button class="burger" aria-label="Meny" aria-expanded="@menuOpen.ToString().ToLower()" @onclick="() => menuOpen = !menuOpen"><span></span><span></span><span></span></button>
@@ -25,7 +30,7 @@
         <div class="foot-grid">
             <div>
                 <img src="img/logo.png" alt="Hallen Södermalm">
-                <p>Din moderna sportsbar på Södermalm – live-sport, god mat och fräscha drycker.</p>
+                <p><Multiline Text="@C["footer.about"]" /></p>
             </div>
             <div>
                 <h4>Sidor</h4>
@@ -41,12 +46,12 @@
             </div>
             <div>
                 <h4>Kontakt</h4>
-                <p>Götgatan 85A<br>116 62 Stockholm</p>
-                <a href="tel:08828265">08-828 265</a>
-                <a href="mailto:info@hallen.one">info@hallen.one</a>
+                <p><Multiline Text="@C["contact.address"]" /></p>
+                <a href="tel:@SiteContent.Digits(C["contact.phone"])">@C["contact.phone"]</a>
+                <a href="mailto:@C["contact.email"]">@C["contact.email"]</a>
             </div>
         </div>
-        <div class="copy"><span>© @DateTime.Now.Year Hallen Södermalm</span><span>Prototyp – redesign av hallen.one</span></div>
+        <div class="copy"><span>© @DateTime.Now.Year Hallen Södermalm</span><span>@C["footer.copy"]</span></div>
     </div>
 </footer>
 

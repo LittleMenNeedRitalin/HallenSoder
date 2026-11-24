@@ -1,5 +1,6 @@
 @page "/kontakt"
 @inherits SitePage
+@inject SiteContent C
 
 <PageTitle>Hitta hit – Hallen Södermalm</PageTitle>
 
@@ -7,7 +8,7 @@
     <div class="wrap">
         <span class="eyebrow">Kontakt</span>
         <h2>Hitta hit</h2>
-        <p class="lead" style="margin-top:1rem">Vi finns på Götgatan på Södermalm.</p>
+        <p class="lead" style="margin-top:1rem"><Multiline Text="@C["contact.intro"]" /></p>
     </div>
 </section>
 
@@ -16,9 +17,9 @@
         <div class="panel reveal">
             <h3>Hallen Södermalm</h3>
             <ul class="list" style="margin-top:1.4rem">
-                <li><small>Adress</small>Götgatan 85A<br>116 62 Stockholm</li>
-                <li><small>Telefon</small><a href="tel:08828265">08-828 265</a></li>
-                <li><small>E-post</small><a href="mailto:info@hallen.one">info@hallen.one</a></li>
+                <li><small>Adress</small><Multiline Text="@C["contact.address"]" /></li>
+                <li><small>Telefon</small><a href="tel:@SiteContent.Digits(C["contact.phone"])">@C["contact.phone"]</a></li>
+                <li><small>E-post</small><a href="mailto:@C["contact.email"]">@C["contact.email"]</a></li>
             </ul>
             <h3 style="margin-top:2rem">Öppettider</h3>
             <div style="margin-top:1rem"><OpeningHours /></div>

@@ -1,29 +1,58 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using HallenSoder.Client.Models;
 
 namespace HallenSoder.Client.Data;
 
-public class EventService(HttpClient http)
+public class EventService(SupabaseClient supabase)
 {
-    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
+    /// <summary>Alla event (även gamla), sorterade på starttid. Används av admin.</summary>
+    public async Task<List<SiteEvent>> GetAllAsync() =>
+        (await supabase.GetEventsAsync()).Select(ToSite).ToList();
 
-    /// <summary>Kommande event sorterade på datum. Pågående event visas i 3 timmar efter start.</summary>
+    /// <summary>Kommande event. Pågående event visas i 3 timmar efter start.</summary>
     public async Task<List<SiteEvent>> GetUpcomingAsync()
     {
-        try
-        {
-            // Cache-bust så att nya event syns direkt efter att admin sparat.
-            var file = await http.GetFromJsonAsync<EventFile>($"data/events.json?v={DateTime.UtcNow.Ticks / TimeSpan.TicksPerMinute}", Options);
-            var cutoff = DateTime.Now.AddHours(-3);
-            return (file?.Events ?? new())
-                .Where(e => e.Date >= cutoff)
-                .OrderBy(e => e.Date)
-                .ToList();
-        }
-        catch (Exception)
-        {
-            return new();
-        }
+        var cutoff = DateTimeOffset.UtcNow.AddHours(-3);
+        return (await supabase.GetEventsAsync())
+            .Where(r => r.StartsAt >= cutoff)
+            .OrderBy(r => r.StartsAt)
+            .Select(ToSite)
+            .ToList();
     }
+
+    public Task<string?> SaveAsync(SiteEvent e) => supabase.SaveEventAsync(new EventRow
+    {
+        Id = e.Id,
+        Type = e.Type,
+        Title = e.Title.Trim(),
+        StartsAt = SwedishTime.ToOffset(e.Date),
+        League = string.IsNullOrWhiteSpace(e.League) ? null : e.League.Trim(),
+        Description = string.IsNullOrWhiteSpace(e.Description) ? null : e.Description.Trim(),
+        ImageUrl = string.IsNullOrWhiteSpace(e.ImageUrl) ? null : e.ImageUrl,
+        Bookable = e.Bookable,
+        Featured = e.Featured
+    });
+
+    /// <summary>Tar bort eventet och dess bild.</summary>
+    public async Task<string?> DeleteAsync(SiteEvent e)
+    {
+        if (e.Id is null) return null;
+        var error = await supabase.DeleteEventAsync(e.Id.Value);
+        if (error is null) await supabase.DeleteImageAsync(e.ImageUrl);
+        return error;
+    }
+
+    public Task<(string? Url, string? Error)> UploadImageAsync(byte[] bytes) => supabase.UploadImageAsync(bytes);
+
+    private static SiteEvent ToSite(EventRow r) => new()
+    {
+        Id = r.Id,
+        Type = r.Type,
+        Title = r.Title,
+        Date = SwedishTime.ToLocal(r.StartsAt),
+        League = r.League,
+        Description = r.Description,
+        ImageUrl = r.ImageUrl,
+        Bookable = r.Bookable,
+        Featured = r.Featured
+    };
 }

@@ -65,4 +65,28 @@ public static class MenuData
             new("Rosa pantern", "Vodka, Likör 43, mjölk, grenadin", 149),
         ]),
     ];
+
+    /// <summary>Standardmenyn som databasrader (används som reserv och vid första importen).</summary>
+    public static List<HallenSoder.Client.Models.MenuSectionRow> ToRows() =>
+        Sections.Select((s, si) =>
+        {
+            var sectionId = Guid.NewGuid();
+            return new HallenSoder.Client.Models.MenuSectionRow
+            {
+                Id = sectionId,
+                Slug = s.Id,
+                Title = s.Title,
+                Note = s.Note,
+                Sort = (si + 1) * 10,
+                Items = s.Dishes.Select((d, di) => new HallenSoder.Client.Models.MenuItemRow
+                {
+                    Id = Guid.NewGuid(),
+                    SectionId = sectionId,
+                    Name = d.Name,
+                    Description = d.Description,
+                    Price = d.Price,
+                    Sort = (di + 1) * 10
+                }).ToList()
+            };
+        }).ToList();
 }

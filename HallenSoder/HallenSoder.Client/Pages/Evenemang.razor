@@ -1,6 +1,7 @@
 @page "/evenemang"
 @inherits SitePage
 @inject EventService Events
+@inject SiteContent C
 
 <PageTitle>Event &amp; sändningsschema – Hallen Södermalm</PageTitle>
 
@@ -8,7 +9,7 @@
     <div class="wrap">
         <span class="eyebrow">På gång</span>
         <h2>Event &amp; sändningsschema</h2>
-        <p class="lead" style="margin-top:1rem">Matcher på storbild, quizkvällar och andra event. Boka bord så du får din plats.</p>
+        <p class="lead" style="margin-top:1rem"><Multiline Text="@C["events.intro"]" /></p>
     </div>
 </section>
 

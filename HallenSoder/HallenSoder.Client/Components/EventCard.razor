@@ -1,9 +1,13 @@
-<article class="event reveal">
+<article class="event reveal @(HasImage ? "has-img" : "")">
     <div class="event-date">
         <span>@Event.Date.ToString("MMM")</span>
         <strong>@Event.Date.Day</strong>
         <small>@Event.Date.ToString("ddd")</small>
     </div>
+    @if (HasImage)
+    {
+        <img class="event-img" src="@Event.ImageUrl" alt="@Event.Title" loading="lazy" />
+    }
     <div class="event-main">
         <span class="event-type">@Event.Icon @Event.Type@(string.IsNullOrWhiteSpace(Event.League) ? "" : " · " + Event.League)</span>
         <h3>@Event.Title</h3>
@@ -23,4 +27,6 @@
 
 @code {
     [Parameter, EditorRequired] public SiteEvent Event { get; set; } = default!;
+
+    private bool HasImage => !string.IsNullOrWhiteSpace(Event.ImageUrl);
 }

@@ -1,14 +1,15 @@
 @page "/"
 @inherits SitePage
 @inject EventService Events
+@inject SiteContent C
 
 <PageTitle>Hallen Södermalm – Sportsbar på Götgatan</PageTitle>
 
 <section class="hero">
     <div class="wrap">
-        <span class="eyebrow">Sportsbar · Södermalm · Stockholm</span>
-        <h1>Söders<span>sportbar</span></h1>
-        <p class="lead">Välkommen till Hallen Södermalm – den ultimata platsen för dig som älskar sport, god mat och trevlig atmosfär.</p>
+        <span class="eyebrow">@C["hero.eyebrow"]</span>
+        <h1>@C["hero.title1"]<span>@C["hero.title2"]</span></h1>
+        <p class="lead"><Multiline Text="@C["hero.lead"]" /></p>
         <div class="hero-cta">
             <a class="btn btn-primary" href="boka-bord">Boka bord</a>
             <a class="btn btn-ghost" href="meny">Se menyn</a>
@@ -18,19 +19,19 @@
 
 <div class="strip">
     <div class="wrap">
-        <div class="strip-item"><span class="ico">📍</span><div><small>Hitta hit</small><strong>Götgatan 85A, Södermalm</strong></div></div>
-        <div class="strip-item"><span class="ico">📺</span><div><small>På skärmarna</small><strong>All sport, live</strong></div></div>
-        <div class="strip-item"><span class="ico">🕐</span><div><small>Öppettider</small><strong>Mån–tors 13–01 · Fre–sön 11–01</strong></div></div>
-        <div class="strip-item"><span class="ico">🍔</span><div><small>Lunch fredagar 11–14</small><strong>119 kr inkl. kaffe</strong></div></div>
+        <div class="strip-item"><span class="ico">📍</span><div><small>Hitta hit</small><strong>@C["strip.address"]</strong></div></div>
+        <div class="strip-item"><span class="ico">📺</span><div><small>På skärmarna</small><strong>@C["strip.sport"]</strong></div></div>
+        <div class="strip-item"><span class="ico">🕐</span><div><small>Öppettider</small><strong>@C["strip.hours"]</strong></div></div>
+        <div class="strip-item"><span class="ico">🍔</span><div><small>@C["strip.lunch_label"]</small><strong>@C["strip.lunch"]</strong></div></div>
     </div>
 </div>
 
 <section>
     <div class="wrap split">
         <div class="reveal">
-            <span class="eyebrow">Hallen Södermalm</span>
-            <h2>Din moderna sportsbar som sänder all sport</h2>
-            <p class="lead">Upplev spänningen med live-matcher på storbildsskärm. Njut av din favoritsport tillsammans med vänner i en pulserande atmosfär – mitt i hjärtat av Stockholm.</p>
+            <span class="eyebrow">@C["about.eyebrow"]</span>
+            <h2>@C["about.title"]</h2>
+            <p class="lead"><Multiline Text="@C["about.lead"]" /></p>
             <a class="btn btn-ghost" href="kontakt">Hitta hit</a>
         </div>
         <img class="reveal" src="img/bar-counter.webp" alt="Baren på Hallen med skärmar och hängande glas" loading="lazy">
@@ -43,15 +44,15 @@
         <div class="cards">
             <a class="card reveal" href="meny">
                 <img src="img/food.webp" alt="Meaty fries och burgare" loading="lazy">
-                <div class="card-body"><h3>God &amp; variation</h3><p>Från saftiga hamburgare till läckra vegetariska alternativ – något för varje smak.</p><span class="card-link">Se vår meny</span></div>
+                <div class="card-body"><h3>@C["card1.title"]</h3><p><Multiline Text="@C["card1.text"]" /></p><span class="card-link">Se vår meny</span></div>
             </a>
             <a class="card reveal" href="meny#dessertdrinkar">
                 <img src="img/drink.webp" alt="Aperol Spritz på bardisken" loading="lazy">
-                <div class="card-body"><h3>Fräscha drycker</h3><p>Klassiska ölsorter, local craft beer och läckra alkoholfria alternativ.</p><span class="card-link">Dryckesmeny</span></div>
+                <div class="card-body"><h3>@C["card2.title"]</h3><p><Multiline Text="@C["card2.text"]" /></p><span class="card-link">Dryckesmeny</span></div>
             </a>
             <a class="card reveal" href="evenemang">
                 <img src="img/interior-lounge.webp" alt="Lokalen med soffor och storbildsskärmar" loading="lazy">
-                <div class="card-body"><h3>Live-matcher</h3><p>Storbildsskärmar och full stämning. Se sändningsschemat och boka bord.</p><span class="card-link">Se schemat</span></div>
+                <div class="card-body"><h3>@C["card3.title"]</h3><p><Multiline Text="@C["card3.text"]" /></p><span class="card-link">Se schemat</span></div>
             </a>
         </div>
     </div>
@@ -98,10 +99,13 @@
 
 <section class="band">
     <div class="wrap reveal">
-        <span class="eyebrow">Afterwork</span>
-        <h2>Boka er afterwork hos oss</h2>
-        <p class="lead">Samla jobbet, laget eller kompisgänget. Mat, dryck och sport i en och samma lokal.</p>
-        <p class="happy">Happy Hour · Mån–tors 13:00–18:00 · Fredag 11:00–18:00</p>
+        <span class="eyebrow">@C["afterwork.eyebrow"]</span>
+        <h2>@C["afterwork.title"]</h2>
+        <p class="lead"><Multiline Text="@C["afterwork.lead"]" /></p>
+        @if (!string.IsNullOrWhiteSpace(C["afterwork.happy"]))
+        {
+            <p class="happy">@C["afterwork.happy"]</p>
+        }
         <a class="btn btn-primary" href="boka-bord">Boka bord</a>
     </div>
 </section>

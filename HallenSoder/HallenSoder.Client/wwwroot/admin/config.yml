@@ -5,7 +5,11 @@ backend:
   branch: master
 
 locale: sv
-media_folder: img/uploads
+
+logo:
+  src: ../img/logo.png
+  show_in_header: true
+media_folder: HallenSoder/HallenSoder.Client/wwwroot/img/uploads
 public_folder: img/uploads
 
 collections:
@@ -15,7 +19,7 @@ collections:
     files:
       - name: events
         label: Alla event
-        file: data/events.json
+        file: HallenSoder/HallenSoder.Client/wwwroot/data/events.json
         format: json
         fields:
           - label: Event

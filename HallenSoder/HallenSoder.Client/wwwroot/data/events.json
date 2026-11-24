@@ -1,3 +1,14 @@
 {
-  "events": []
+  "events": [
+    {
+      "type": "Match",
+      "title": "Arsenal - Dortmund",
+      "date": "2026-11-25T19:30",
+      "league": "Champions Leauge",
+      "description": "",
+      "image": "/img/uploads/b23e1070-e4ed-11f1-a094-5fdc692f3e33.png",
+      "bookable": true,
+      "featured": false
+    }
+  ]
 }

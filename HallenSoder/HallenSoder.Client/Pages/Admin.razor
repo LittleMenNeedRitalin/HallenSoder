@@ -74,6 +74,9 @@
                 case "Texter":
                     <AdminTexts />
                     break;
+                case "Hjälp":
+                    <AdminHelp />
+                    break;
             }
 
             <p class="mas-desc admin-tip">📱 Tips: öppna den här sidan i mobilen och välj <strong>Lägg till på startskärmen</strong> i webbläsarens meny, så får du Hallen Admin som en app-ikon.</p>
@@ -82,7 +85,7 @@
 </section>
 
 @code {
-    private static readonly string[] Tabs = ["Event", "Meny", "Texter"];
+    private static readonly string[] Tabs = ["Event", "Meny", "Texter", "Hjälp"];
 
     private bool ready, busy;
     private string email = "", password = "";
@@ -99,6 +102,7 @@
             "meny" => "Meny",
             "texter" => "Texter",
             "event" => "Event",
+            "hjalp" => "Hjälp",
             _ => tab
         };
     }
